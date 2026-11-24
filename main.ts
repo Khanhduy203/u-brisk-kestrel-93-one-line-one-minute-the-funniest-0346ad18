@@ -19,6 +19,9 @@ function checkEntry(text) {
   if (text !== text.trim()) {
     throw new Error("entry must not have leading or trailing whitespace");
   }
+  if (text.trim().length === 0) {
+    throw new Error("entry must contain non-whitespace characters");
+  }
 }
 
 function main() {
@@ -31,6 +34,18 @@ function main() {
   fs.mkdirSync(outDir, { recursive: true });
   const outFile = path.join(outDir, "entry.txt");
   fs.writeFileSync(outFile, ENTRY, "utf8");
+  const written = fs.readFileSync(outFile);
+  if (written.length !== Buffer.byteLength(ENTRY, "utf8")) {
+    throw new Error(
+      "written file byte length " +
+        written.length +
+        " does not match entry byte length " +
+        Buffer.byteLength(ENTRY, "utf8")
+    );
+  }
+  if (!written.equals(Buffer.from(ENTRY, "utf8"))) {
+    throw new Error("written file content does not match entry");
+  }
 }
 
 main();
